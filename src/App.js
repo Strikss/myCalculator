@@ -14,10 +14,7 @@ export const actions = {
 const reducer = (state, { type, payload }) => {
   switch (type) {
     case actions.ADD_DIGIT: {
-      if (
-        state.afterEquals &&
-        (payload.digit === "0" || payload.digit === ".")
-      ) {
+      if (state.afterEquals && payload.digit === ".") {
         return state;
       }
       if (state.afterEquals) {
@@ -26,6 +23,9 @@ const reducer = (state, { type, payload }) => {
           currOperand: payload.digit,
           afterEquals: false,
         };
+      }
+      if (payload.digit === "0" && state.currOperand === "") {
+        return { ...state, currOperand: payload.digit };
       }
       if (payload.digit === "0" && state.currOperand === "0") {
         return state;
@@ -47,7 +47,12 @@ const reducer = (state, { type, payload }) => {
     }
 
     case actions.CLEAR: {
-      return { currOperand: "", prevOperand: "", operation: "" };
+      return {
+        currOperand: "",
+        prevOperand: "",
+        operation: "",
+        afterEquals: true,
+      };
     }
 
     case actions.CHOOSE_OPERATION: {
@@ -107,19 +112,31 @@ const evaluate = ({ prevOperand, currOperand, operation }) => {
   if (isNaN(prev) || isNaN(curr)) return "";
   switch (operation) {
     case "/": {
-      sum = String(prev / curr);
+      sum =
+        (prev / curr) % 1 === 0
+          ? String(prev / curr)
+          : (prev / curr).toFixed(3);
       break;
     }
     case "*": {
-      sum = String(prev * curr);
+      sum =
+        (prev * curr) % 1 === 0
+          ? String(prev * curr)
+          : (prev * curr).toFixed(3);
       break;
     }
     case "+": {
-      sum = String(prev + curr);
+      sum =
+        (prev + curr) % 1 === 0
+          ? String(prev + curr)
+          : (prev + curr).toFixed(3);
       break;
     }
     case "-": {
-      sum = String(prev - curr);
+      sum =
+        (prev - curr) % 1 === 0
+          ? String(prev - curr)
+          : (prev - curr).toFixed(3);
       break;
     }
     default:
