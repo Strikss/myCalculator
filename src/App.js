@@ -15,8 +15,8 @@ const reducer = (state, { type, payload }) => {
   switch (type) {
     case actions.ADD_DIGIT: {
       if (
-        (state.afterEquals && payload.digit === "0") ||
-        payload.digit === "."
+        state.afterEquals &&
+        (payload.digit === "0" || payload.digit === ".")
       ) {
         return state;
       }
@@ -31,7 +31,7 @@ const reducer = (state, { type, payload }) => {
         return state;
       }
       if (
-        state.currOperand === "" &&
+        !state.currOperand &&
         (payload.digit === "." || payload.digit === "0")
       ) {
         return state;
@@ -51,16 +51,14 @@ const reducer = (state, { type, payload }) => {
     }
 
     case actions.CHOOSE_OPERATION: {
-      if (state.currOperand === "" && state.prevOperand === "") {
+      if (!state.currOperand && !state.prevOperand) {
         return state;
       }
-      if (state.currOperand === "" && state.operation === payload.operation) {
-        return state;
-      }
-      if (state.currOperand === "" && state.operation !== payload.operation) {
+
+      if (!state.currOperand) {
         return { ...state, operation: payload.operation };
       }
-      if (state.prevOperand === "") {
+      if (!state.prevOperand) {
         return {
           ...state,
           prevOperand: state.currOperand,
@@ -76,6 +74,9 @@ const reducer = (state, { type, payload }) => {
       };
     }
     case actions.EVALUATE: {
+      if (!state.prevOperand) {
+        return state;
+      }
       return {
         ...state,
         currOperand: evaluate(state),
